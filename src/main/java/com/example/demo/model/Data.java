@@ -38,4 +38,16 @@ public class Data {
         transactions.add(transaction2);
         return transactions;
     }
+
+    public static List<Map<String, Object>> getAccount() {
+        List<Map<String, Object>> accounts = new ArrayList<>();
+        Map<String, Object> account1 = new HashMap<>();
+        account1.put("debet1", "12345ABC01");
+        account1.put("kredit1", "12345ABC01");
+        account1.put("debet2", "54321DCBA01");
+        account1.put("kredit2", "54321DCBA05");
+
+        accounts.add(account1);
+        return accounts;
+    }
 }

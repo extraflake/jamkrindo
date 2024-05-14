@@ -20,20 +20,36 @@ public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
 
-        List<Map<String, Object>> transactions = Data.getTransactions();
+        List<Map<String, Object>> dataTransaksi = Data.getTransactions();
 
-        List<Journal> journalList = new ArrayList<>();
-        for (Map<String, Object> transaction : transactions) {
-            Journal journal = new Journal();
-            journal.setWilayahKerja(Region.getRegion((int) transaction.get("kode_wilayah_kerja")));
-            journal.setTanggalJurnal(CustomCalendar.getLastDayOfMonth((String) transaction.get("created_date")));
-            journal.setKodeCOA(COA.getCode(transaction));
-            journal.setNominalDebet(Currency.get(transaction));
-            journal.setNominalKredit(Currency.get(transaction));
-            journalList.add(journal);
+        List<Journal> jurnalList = new ArrayList<>();
+        for (Map<String, Object> transaksi : dataTransaksi) {
+            Journal debetJurnal = new Journal();
+            Journal kreditJurnal = new Journal();
+
+            int jenisTransaksi = (int) transaksi.get("jenis transaksi");
+            String nominal = Currency.get(transaksi);
+            String tanggalJurnal = CustomCalendar.getLastDayOfMonth((String) transaksi.get("created_date"));
+
+            debetJurnal.setWilayahKerja(Region.getRegion((int) transaksi.get("kode_wilayah_kerja")));
+            kreditJurnal.setWilayahKerja(debetJurnal.getWilayahKerja());
+
+            debetJurnal.setNominalDebet(nominal);
+            debetJurnal.setNominalKredit("0");
+            kreditJurnal.setNominalDebet("0");
+            kreditJurnal.setNominalKredit(nominal);
+
+            debetJurnal.setTanggalJurnal(tanggalJurnal);
+            kreditJurnal.setTanggalJurnal(tanggalJurnal);
+
+            debetJurnal.setKodeCOA(COA.getCode(transaksi, jenisTransaksi, true));
+            kreditJurnal.setKodeCOA(COA.getCode(transaksi, jenisTransaksi, false));
+
+            jurnalList.add(debetJurnal);
+            jurnalList.add(kreditJurnal);
         }
 
-        for (Journal journal : journalList) {
+        for (Journal journal : jurnalList) {
             System.out.println(journal.toString());
         }
     }
